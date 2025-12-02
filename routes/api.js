@@ -4,15 +4,18 @@ import auth from "../middlewares/auth";
 import { CreatePermission, GetPermission, UpdatePermission, DeletePermission } from "../controllers/PermissionController";
 import { CreateRole, GetRole, UpdateRole, DeleteRole } from "../controllers/RoleController";
 import { CreateUser, GetUser, UpdateUser, DeleteUser } from "../controllers/UserController";
+import { validate } from "../middlewares/validate";
+import { loginSchema } from "../validators/auth";
+import { userSchema } from "../validators/user";
 
 const router = express.Router();
 
-router.post('/auth/login', Login)
+router.post('/auth/login', validate(loginSchema), Login)
 router.post('/rauth/egister', Register)
 router.get('/auth/user', auth(), User)
 router.post('/auth/logout', auth(), Logout)
 
-router.post('/user', auth(), CreateUser)
+router.post('/user', auth(), validate(userSchema), CreateUser)
 router.get('/user', auth(), GetUser)
 router.put('/user/:id', auth(), UpdateUser)
 router.delete('/user/:id', auth(), DeleteUser)
