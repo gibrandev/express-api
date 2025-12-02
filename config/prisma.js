@@ -14,6 +14,10 @@ const prisma = new PrismaClient({ adapter, ...{
     omit: {
         user: {
             password: true
+        },
+        userStatus: {
+            createdAt: true,
+            updatedAt: true
         }
     }
 } });

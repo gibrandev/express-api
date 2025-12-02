@@ -49,8 +49,8 @@ export const verifyToken = async (token) => {
         // cek token berdasarkan jti
         const tokenRecord = await prisma.userToken.findFirst({
             where: {
-                id: Number(decoded.jti),
-                userId: Number(decoded.sub),
+                id: parseInt(decoded.jti),
+                userId: parseInt(decoded.sub),
                 expiredAt: {
                     gt: new Date(),
                 },
@@ -62,7 +62,10 @@ export const verifyToken = async (token) => {
         }
 
         const user = await prisma.user.findUnique({
-            where: { id: Number(decoded.sub) },
+            where: { id: parseInt(decoded.sub) },
+            include: {
+                status: true
+            }
         });
 
         if (!user) {
@@ -71,6 +74,7 @@ export const verifyToken = async (token) => {
 
         return user;
     } catch (err) {
+        console.log(err)
         throw new Error("Token tidak valid");
     }
 };
