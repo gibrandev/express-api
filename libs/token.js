@@ -54,7 +54,7 @@ export const verifyToken = async (token) => {
                 expiredAt: {
                     gt: new Date(),
                 },
-            },
+            }
         });
 
         if (!tokenRecord) {
@@ -63,6 +63,9 @@ export const verifyToken = async (token) => {
 
         const user = await prisma.user.findUnique({
             where: { id: Number(decoded.sub) },
+            omit: {
+                password: true
+            },
         });
 
         if (!user) {
