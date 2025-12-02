@@ -6,7 +6,7 @@ import { CreateRole, GetRole, UpdateRole, DeleteRole } from "#controllers/RoleCo
 import { CreateUser, GetUser, UpdateUser, DeleteUser } from "#controllers/UserController";
 import { validate } from "#middlewares/validate";
 import { loginSchema } from "#validators/auth";
-import { userSchema } from "#validators/user";
+import { userSchema, userUpdateSchema } from "#validators/user";
 import { roleSchema } from "#validators/role";
 import { permissionSchema } from "#validators/permission";
 
@@ -19,7 +19,7 @@ router.post('/auth/logout', auth(), Logout)
 
 router.post('/user', auth(), validate(userSchema), CreateUser)
 router.get('/user', auth(), GetUser)
-router.put('/user/:id', auth(), UpdateUser)
+router.put('/user/:id', auth(), validate(userUpdateSchema), UpdateUser)
 router.delete('/user/:id', auth(), DeleteUser)
 
 router.post('/permission', auth(), validate(permissionSchema), CreatePermission)

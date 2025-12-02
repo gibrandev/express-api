@@ -6,7 +6,7 @@ export const CreateUser = async (req, res) => {
     const email = req.body.email;
     let password = req.body.password;
     const roleIds = req.body.roleIds;
-    const userStatusId = req.body.userStatusId;
+    const userStatusId = parseInt(req.body.userStatusId);
 
     if (!Array.isArray(roleIds) || roleIds.length === 0) {
         return res.status(400).json({ message: "roleIds must be a non-empty array" });
@@ -74,7 +74,7 @@ export const UpdateUser = async (req, res) => {
     const email = req.body.email;
     let password = req.body.password;
     const roleIds = req.body.roleIds;
-    const userStatusId = req.body.userStatusId;
+    const userStatusId = parseInt(req.body.userStatusId);
 
     if (!Array.isArray(roleIds) || roleIds.length === 0) {
         return res.status(400).json({ message: "roleIds must be a non-empty array" });
