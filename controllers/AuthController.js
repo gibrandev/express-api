@@ -12,7 +12,7 @@ export const Login = async (req, res) => {
             userStatusId: 1
         },
         omit: {
-            password: false // The password field is now selected.
+            password: false
         },
     });
 

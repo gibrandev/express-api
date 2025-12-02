@@ -63,7 +63,6 @@ export const UpdatePermission = async (req, res) => {
         where: { name }
     });
 
-    // jika nama sudah ada dan bukan milik permission yang mau di update
     if (exists && exists.id !== id) {
         return res.status(400).json({ message: "Permission name already used" });
     }

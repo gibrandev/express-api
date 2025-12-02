@@ -1,8 +1,7 @@
 import {prisma} from '../config/prisma';
 
 export const CreateRole = async (req, res) => {
-    const name = req.body.name;
-    const description = req.body.description;
+    const { name, description, permissionIds } = req.body;
 
     const check = await prisma.role.findUnique({
         where: {
@@ -14,11 +13,17 @@ export const CreateRole = async (req, res) => {
         return res.status(400).json({ message: "Role already exists" });
     }
 
-    await prisma.role.create({
+    const role = await prisma.role.create({
         data: {
             name: name,
             description: description
         }
+    });
+
+    // Assign new permissions
+    const assignments = permissionIds.map(permissionId => ({ roleId: role.id, permissionId }));
+    await prisma.rolePermission.createMany({
+        data: assignments
     });
 
     res.json({ message: "Role has been created" });
@@ -46,7 +51,7 @@ export const GetRoleById = async (req, res) => {
 
 export const UpdateRole = async (req, res) => {
     const id = parseInt(req.params.id);
-    const { name, description } = req.body;
+    const { name, description, permissionIds } = req.body;
 
     const role = await prisma.role.findUnique({
         where: {
@@ -62,7 +67,6 @@ export const UpdateRole = async (req, res) => {
         where: { name }
     });
 
-    // jika nama sudah ada dan bukan milik role yang mau di update
     if (exists && exists.id !== id) {
         return res.status(400).json({ message: "Role name already used" });
     }
@@ -75,7 +79,18 @@ export const UpdateRole = async (req, res) => {
             name: name,
             description: description
         },
-    })
+    });
+
+    // Remove existing permissions
+    await prisma.rolePermission.deleteMany({
+        where: {roleId: id }
+    });
+
+    // Assign new permissions
+    const assignments = permissionIds.map(permissionId => ({ roleId: id, permissionId }));
+    await prisma.rolePermission.createMany({
+        data: assignments
+    });
 
     res.json({ message: "Role has been updated" });
 }

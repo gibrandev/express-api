@@ -3,13 +3,19 @@ import { Login, Register, User, Logout } from "../controllers/AuthController";
 import auth from "../middlewares/auth";
 import { CreatePermission, GetPermission, UpdatePermission, DeletePermission } from "../controllers/PermissionController";
 import { CreateRole, GetRole, UpdateRole, DeleteRole } from "../controllers/RoleController";
+import { CreateUser, GetUser, UpdateUser, DeleteUser } from "../controllers/UserController";
 
 const router = express.Router();
 
-router.post('/login', Login)
-router.post('/register', Register)
-router.get('/user', auth(), User)
-router.post('/logout', auth(), Logout)
+router.post('/auth/login', Login)
+router.post('/rauth/egister', Register)
+router.get('/auth/user', auth(), User)
+router.post('/auth/logout', auth(), Logout)
+
+router.post('/user', auth(), CreateUser)
+router.get('/user', auth(), GetUser)
+router.put('/user/:id', auth(), UpdateUser)
+router.delete('/user/:id', auth(), DeleteUser)
 
 router.post('/permission', auth(), CreatePermission)
 router.get('/permission', auth(), GetPermission)
