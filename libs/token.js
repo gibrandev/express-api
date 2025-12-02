@@ -63,9 +63,6 @@ export const verifyToken = async (token) => {
 
         const user = await prisma.user.findUnique({
             where: { id: Number(decoded.sub) },
-            omit: {
-                password: true
-            },
         });
 
         if (!user) {

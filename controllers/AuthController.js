@@ -11,6 +11,9 @@ export const Login = async (req, res) => {
             email: email,
             userStatusId: 1
         },
+        omit: {
+            password: false // The password field is now selected.
+        },
     });
 
     if (!user) {
