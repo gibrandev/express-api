@@ -24,6 +24,7 @@ model User {
   status UserStatus @relation(fields: [userStatusId], references: [id])
   userTokens UserToken[]
   userResetPasswords UserResetPassword[]
+  roles     UserRole[]
 }
 
 model UserStatus {
@@ -46,4 +47,49 @@ model UserResetPassword {
   user    User?    @relation(fields: [userId], references: [id])
   userId  Int
   expiredAt DateTime @default(now())
+}
+
+model Role {
+  id          Int              @id @default(autoincrement())
+  name        String           @unique
+  description String?
+
+  permissions RolePermission[]
+  users       UserRole[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+}
+
+model Permission {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String?  
+
+  roles       RolePermission[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model RolePermission {
+  id           Int         @id @default(autoincrement())
+  role         Role        @relation(fields: [roleId], references: [id])
+  roleId       Int
+  permission   Permission  @relation(fields: [permissionId], references: [id])
+  permissionId Int
+
+  grantedAt    DateTime    @default(now())
+
+  @@unique([roleId, permissionId])
+}
+
+model UserRole {
+  id      Int   @id @default(autoincrement())
+  user    User  @relation(fields: [userId], references: [id])
+  userId  Int
+  role    Role  @relation(fields: [roleId], references: [id])
+  roleId  Int
+
+  assignedAt DateTime @default(now())
+
+  @@unique([userId, roleId])
 }
