@@ -1,6 +1,6 @@
 import {prisma} from '../config/prisma';
 import bcrypt from "bcrypt";
-import { generateToken } from '../libs/token';
+import { generateToken, handleLogout } from '../libs/token';
 
 export const Login = async (req, res) => {
     const email = req.body.email;
@@ -36,4 +36,15 @@ export const Login = async (req, res) => {
 
 export const Register = (req, res) => {
     res.json({ user: 'tobi' })
+}
+
+export const Logout = async (req, res) => {
+    await handleLogout(req, res);
+    res.json({
+        message: "Logout berhasil"
+    })
+}
+
+export const User = (req, res) => {
+    res.json(req.user)
 }

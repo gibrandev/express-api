@@ -1,3 +1,4 @@
+import "dotenv/config";
 import jwt from "jsonwebtoken";
 import { prisma } from "../config/prisma.js";
 
@@ -60,12 +61,25 @@ export const verifyToken = async (token) => {
             throw new Error("Token expired / tidak valid di database");
         }
 
-        return decoded;
+        const user = await prisma.user.findUnique({
+            where: { id: Number(decoded.sub) },
+        });
+
+        if (!user) {
+            throw new Error("User tidak ditemukan");
+        }
+
+        return user;
     } catch (err) {
         throw new Error("Token tidak valid");
     }
 };
 
+export const handleLogout = async (req, res) => {
+    const user = req.user;
+    await deleteToken(user.id);
+    return true;
+}
 
 /**
  * Hapus token user (logout semua device)
