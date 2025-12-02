@@ -8,6 +8,10 @@ export const CreateUser = async (req, res) => {
     const roleIds = req.body.roleIds;
     const userStatusId = req.body.userStatusId;
 
+    if (!Array.isArray(roleIds) || roleIds.length === 0) {
+        return res.status(400).json({ message: "roleIds must be a non-empty array" });
+    }
+
     const check = await prisma.user.findUnique({
         where: {
             email: email
@@ -20,26 +24,28 @@ export const CreateUser = async (req, res) => {
 
     password = await bcrypt.hash(password, 10);
 
-    const user = await prisma.user.create({
-        data: {
-            name: name,
-            email: email,
-            password: password,
-            userStatusId: userStatusId
-        }
-    });
+    try {
+        await prisma.$transaction(async (tx) => {
+            const user = await tx.user.create({
+                data: {
+                    name: name,
+                    email: email,
+                    password: password,
+                    userStatusId: userStatusId
+                }
+            });
 
-    if (!Array.isArray(roleIds) || roleIds.length === 0) {
-        return res.status(400).json({ message: "roleIds must be a non-empty array" });
+            // Assign new roles
+            const assignments = roleIds.map(roleId => ({ userId: user.id, roleId }));
+            await tx.userRole.createMany({
+                data: assignments
+            });
+
+            res.json({ message: "User has been created" });
+        })
+    } catch (err) {
+        res.status(500).json({ message: "Internal server error", error: err.message });
     }
-
-    // Assign new roles
-    const assignments = roleIds.map(roleId => ({ userId: user.id, roleId }));
-    await prisma.userRole.createMany({
-        data: assignments
-    });
-
-    res.json({ message: "User has been created" });
 }
 
 export const GetUser = async (req, res) => {
@@ -70,6 +76,10 @@ export const UpdateUser = async (req, res) => {
     const roleIds = req.body.roleIds;
     const userStatusId = req.body.userStatusId;
 
+    if (!Array.isArray(roleIds) || roleIds.length === 0) {
+        return res.status(400).json({ message: "roleIds must be a non-empty array" });
+    }
+
     const user = await prisma.user.findUnique({
         where: {
             id: id
@@ -93,35 +103,37 @@ export const UpdateUser = async (req, res) => {
 
     password = password ? await bcrypt.hash(password, 10) : user.password;
 
-    await prisma.user.update({
-        where: {
-            id: id,
-        },
-        data: {
-            name: name,
-            email: email,
-            password: password,
-            userStatusId: userStatusId
-        },
-    })
+    try {
+        await prisma.$transaction(async (tx) => {
+            await tx.user.update({
+                where: {
+                    id: id,
+                },
+                data: {
+                    name: name,
+                    email: email,
+                    password: password,
+                    userStatusId: userStatusId
+                },
+            })
 
-    if (!Array.isArray(roleIds) || roleIds.length === 0) {
-        return res.status(400).json({ message: "roleIds must be a non-empty array" });
+            // Remove existing roles
+            await tx.userRole.deleteMany({
+                where: {userId: id }
+            });
+
+            // Assign new roles
+            const assignments = roleIds.map(roleId => ({ userId: id, roleId }));
+
+            await tx.userRole.createMany({
+                data: assignments
+            });
+
+            res.json({ message: "User has been updated" });
+        })
+    } catch (err) {
+        res.status(500).json({ message: "Internal server error", error: err.message });
     }
-
-    // Remove existing roles
-    await prisma.userRole.deleteMany({
-        where: {userId: id }
-    });
-
-    // Assign new roles
-    const assignments = roleIds.map(roleId => ({ userId: id, roleId }));
-
-    await prisma.userRole.createMany({
-        data: assignments
-    });
-
-    res.json({ message: "User has been updated" });
 }
 
 export const DeleteUser = async (req, res) => {

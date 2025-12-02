@@ -13,20 +13,26 @@ export const CreateRole = async (req, res) => {
         return res.status(400).json({ message: "Role already exists" });
     }
 
-    const role = await prisma.role.create({
-        data: {
-            name: name,
-            description: description
-        }
-    });
+    try {
+        await prisma.$transaction(async (tx) => {
+            const role = await tx.role.create({
+                data: {
+                    name: name,
+                    description: description
+                }
+            });
 
-    // Assign new permissions
-    const assignments = permissionIds.map(permissionId => ({ roleId: role.id, permissionId }));
-    await prisma.rolePermission.createMany({
-        data: assignments
-    });
+            // Assign new permissions
+            const assignments = permissionIds.map(permissionId => ({ roleId: role.id, permissionId }));
+            await tx.rolePermission.createMany({
+                data: assignments
+            });
 
-    res.json({ message: "Role has been created" });
+            res.json({ message: "Role has been created" });
+        })
+    } catch (err) {
+        res.status(500).json({ message: "Internal server error", error: err.message });
+    }
 }
 
 export const GetRole = async (req, res) => {
@@ -71,28 +77,34 @@ export const UpdateRole = async (req, res) => {
         return res.status(400).json({ message: "Role name already used" });
     }
 
-    await prisma.role.update({
-        where: {
-            id: id,
-        },
-        data: {
-            name: name,
-            description: description
-        },
-    });
+    try {
+        await prisma.$transaction(async (tx) => {
+            await tx.role.update({
+                where: {
+                    id: id,
+                },
+                data: {
+                    name: name,
+                    description: description
+                },
+            });
 
-    // Remove existing permissions
-    await prisma.rolePermission.deleteMany({
-        where: {roleId: id }
-    });
+            // Remove existing permissions
+            await tx.rolePermission.deleteMany({
+                where: {roleId: id }
+            });
 
-    // Assign new permissions
-    const assignments = permissionIds.map(permissionId => ({ roleId: id, permissionId }));
-    await prisma.rolePermission.createMany({
-        data: assignments
-    });
+            // Assign new permissions
+            const assignments = permissionIds.map(permissionId => ({ roleId: id, permissionId }));
+            await tx.rolePermission.createMany({
+                data: assignments
+            });
 
-    res.json({ message: "Role has been updated" });
+            res.json({ message: "Role has been updated" });
+        })
+    } catch (err) {
+        res.status(500).json({ message: "Internal server error", error: err.message });
+    }
 }
 
 export const DeleteRole = async (req, res) => {
