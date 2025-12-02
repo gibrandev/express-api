@@ -1,6 +1,6 @@
 import {prisma} from '../config/prisma';
 
-export const CreateRole = async (req, res) => {
+export const CreateRole = async (req, res, next) => {
     const { name, description, permissionIds } = req.body;
 
     const check = await prisma.role.findUnique({
@@ -31,7 +31,7 @@ export const CreateRole = async (req, res) => {
             res.json({ message: "Role has been created" });
         })
     } catch (err) {
-        res.status(500).json({ message: "Internal server error", error: err.message });
+        next(err);
     }
 }
 
@@ -55,7 +55,7 @@ export const GetRoleById = async (req, res) => {
     res.json(role);
 }
 
-export const UpdateRole = async (req, res) => {
+export const UpdateRole = async (req, res, next) => {
     const id = parseInt(req.params.id);
     const { name, description, permissionIds } = req.body;
 
@@ -103,7 +103,7 @@ export const UpdateRole = async (req, res) => {
             res.json({ message: "Role has been updated" });
         })
     } catch (err) {
-        res.status(500).json({ message: "Internal server error", error: err.message });
+        next(err);
     }
 }
 

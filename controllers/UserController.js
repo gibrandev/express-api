@@ -1,7 +1,7 @@
 import {prisma} from '../config/prisma';
 import bcrypt from "bcrypt";
 
-export const CreateUser = async (req, res) => {
+export const CreateUser = async (req, res, next) => {
     const name = req.body.name;
     const email = req.body.email;
     let password = req.body.password;
@@ -44,7 +44,7 @@ export const CreateUser = async (req, res) => {
             res.json({ message: "User has been created" });
         })
     } catch (err) {
-        res.status(500).json({ message: "Internal server error", error: err.message });
+        next(err);
     }
 }
 
@@ -68,7 +68,7 @@ export const GetUserById = async (req, res) => {
     res.json(user);
 }
 
-export const UpdateUser = async (req, res) => {
+export const UpdateUser = async (req, res, next) => {
     const id = parseInt(req.params.id);
     const name = req.body.name;
     const email = req.body.email;
@@ -132,7 +132,7 @@ export const UpdateUser = async (req, res) => {
             res.json({ message: "User has been updated" });
         })
     } catch (err) {
-        res.status(500).json({ message: "Internal server error", error: err.message });
+        next(err);
     }
 }
 
