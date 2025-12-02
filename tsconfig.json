@@ -25,6 +25,14 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noPropertyAccessFromIndexSignature": false,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "baseUrl": ".",
+    "paths": {
+      "#middlewares/*": ["./middlewares/*"],
+      "#controllers/*": ["./controllers/*"],
+      "#validators/*": ["./validators/*"],
+      "#libs/*": ["./libs/*"],
+      "#config/*": ["./config/*"]
+    }
   }
 }

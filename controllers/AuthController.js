@@ -1,6 +1,6 @@
-import {prisma} from '../config/prisma';
+import {prisma} from '#config/prisma';
 import bcrypt from "bcrypt";
-import { generateToken, handleLogout } from '../libs/token';
+import { generateToken, handleLogout } from '#libs/token';
 
 export const Login = async (req, res) => {
     const email = req.body.email;
