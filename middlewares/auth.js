@@ -1,4 +1,4 @@
-import { verifyToken } from "../libs/token.js";
+import { verifyToken } from "#libs/token.js";
 
 export default function() {
     return async function (req, res, next) {
